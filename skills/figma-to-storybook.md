@@ -61,6 +61,7 @@ npm install -D vite @vitejs/plugin-react tailwindcss @tailwindcss/vite
 npm install -D storybook @storybook/react-vite @storybook/addon-docs @storybook/addon-a11y @storybook/addon-viewport
 npm install -D @storybook/addon-designs @chromatic-com/storybook
 npm install -D vitest @vitest/ui jsdom @testing-library/react @testing-library/user-event @testing-library/jest-dom
+npm install -D eslint @eslint/js eslint-plugin-react-hooks @typescript-eslint/eslint-plugin @typescript-eslint/parser
 ```
 
 If `config.language === "typescript"`:
@@ -141,6 +142,40 @@ createRoot(document.getElementById('root')!).render(
     <div>Design System</div>
   </StrictMode>
 );
+```
+
+**eslint.config.js:**
+```js
+import js from '@eslint/js';
+import reactHooks from 'eslint-plugin-react-hooks';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+
+export default [
+  js.configs.recommended,
+  {
+    files: ['**/*.{ts,tsx}'],
+    plugins: {
+      '@typescript-eslint': tseslint,
+      'react-hooks': reactHooks,
+    },
+    languageOptions: {
+      parser: tsParser,
+    },
+    rules: {
+      ...tseslint.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+    },
+  },
+];
+```
+
+Add scripts to `package.json`:
+```json
+"scripts": {
+  "lint": "eslint src --ext .ts,.tsx",
+  "typecheck": "tsc --noEmit"
+}
 ```
 
 Add to `.gitignore` if not present: `.figma-migration.json` and `.figma-learnings.json`

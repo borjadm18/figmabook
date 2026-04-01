@@ -42,7 +42,8 @@ For each component in the completed layer:
    - Pattern #8: if any `.map()` returns multiple siblings, verify `React.Fragment key` is used.
    - Pattern #9: if `semanticType === "overlay"`, verify both `useEffect` blocks and `previousFocus.current?.focus()` are present.
 6. Variant story coverage: verify that every entry in `manifest.{component}.variants[]` has a corresponding exported story in `{ComponentName}.stories.tsx`. A missing story for any variant is **Critical**.
-7. Compute fidelity score. Report.
+7. Responsive class coverage: if `manifest.{component}.responsiveTokens` is non-empty, verify that each breakpoint's delta tokens have a corresponding prefixed Tailwind class (e.g. `lg:px-[22px]`). Missing responsive classes are **Important**.
+8. Compute fidelity score. Report.
 
 ### Tailwind class search table
 

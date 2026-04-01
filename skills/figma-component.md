@@ -12,9 +12,24 @@ Generates a TSX component, Storybook story, and Vitest test for each component i
 
 For each component in `progress.{layer}.pending[]`:
 1. Generate the 3 files (see templates below)
-2. Move the component name from `progress.{layer}.pending[]` to `progress.{layer}.done[]`
-3. Write the updated state to `.figma-migration.json`
-4. Proceed to the next component
+2. Run TypeScript check from the project root:
+   ```bash
+   npx tsc --noEmit
+   ```
+   - **Pass (no errors):** proceed to step 3
+   - **Fail:** report each TypeScript error as **Critical**. Fix the generated files and re-run. Do NOT advance to `done[]` until the check passes.
+3. Move the component name from `progress.{layer}.pending[]` to `progress.{layer}.done[]`
+4. Write the updated state to `.figma-migration.json`
+5. Proceed to the next component
+
+**After all components in the layer are done:** create or update `src/components/{layer}/index.ts` as a barrel export file:
+```ts
+// Auto-generated barrel — do not edit manually
+export { {Component1} } from './{Component1}/{Component1}';
+export { {Component2} } from './{Component2}/{Component2}';
+// one line per component in progress.{layer}.done[]
+```
+If the file already exists: append new exports only. Do not remove existing lines.
 
 ---
 
@@ -213,6 +228,26 @@ Map each manifest field to a Tailwind class using these rules (REQUIRED — ever
 | `strokes[N].align: INSIDE` | `box-border` | Border-box sizing |
 
 Add a `{/* Figma: {field}={value} */}` comment above each group of arbitrary-value classes.
+
+### Responsive class generation
+
+If `manifest.responsiveTokens` is non-empty, generate additional prefixed classes for each breakpoint present. Apply the same Tailwind Translation Rules from the table above, prefixed with the breakpoint key. Only generate prefixed classes for tokens present in `responsiveTokens.{breakpoint}` (delta only — not all tokens).
+
+```tsx
+<div
+  className={cn(
+    // Base classes (mobile-first — no prefix)
+    // Figma: nodeId={nodeId} | base viewport
+    'px-[12px] text-[14px] font-normal',
+    // Responsive overrides from responsiveTokens.lg
+    // Figma: lg breakpoint delta
+    'lg:px-[22px] lg:text-[16px]',
+    className
+  )}
+/>
+```
+
+If `responsiveTokens` is empty (`{}`), generate only base classes as usual.
 
 ### Story template
 

@@ -21,6 +21,22 @@ Built as a suite of [Claude Code](https://claude.ai/code) skills.
 - A Figma account with access to the file you want to migrate
 - Node.js 18+
 
+## Authentication
+
+Two options — the skill detects which one is available automatically.
+
+**Option 1 — Figma MCP (recommended, no token needed):**
+1. Open Claude Code → Settings → MCP Servers → Add server
+2. Enter URL: `https://mcp.figma.com/mcp` and name it `figma`
+3. Complete the OAuth flow in your browser
+4. Done — the skill will use your OAuth session
+
+**Option 2 — Personal Access Token:**
+1. Go to Figma → Settings → Security → Personal access tokens
+2. Create a token with **File content** read access
+3. Copy it (`figd_...` format)
+4. Paste it when prompted during migration setup
+
 ## Install
 
 **Mac / Linux:**

@@ -206,6 +206,36 @@ For each top-level frame, add an entry to `manifest.pages[]`:
 }
 ```
 
+### Responsive variant detection (all modes)
+
+After extracting COMPONENT/COMPONENT_SET nodes, scan for components that have multiple variants representing different viewport sizes.
+
+**Detection signals:**
+- Variant names containing `mobile`, `tablet`, `desktop`, `small`, `large`, `sm`, `md`, `lg` (case-insensitive)
+- Variants within the same COMPONENT_SET whose `absoluteBoundingBox.width` values fall into different breakpoint ranges
+- A COMPONENT_SET where the narrowest and widest variant widths differ by more than 40%
+
+**Width-to-breakpoint mapping (mobile-first):**
+
+| Frame width | Tailwind prefix | Meaning |
+|---|---|---|
+| ≤ 639px | base (no prefix) | Default — mobile first |
+| 640–767px | `sm:` | Small tablet and up |
+| 768–1023px | `md:` | Tablet and up |
+| 1024–1279px | `lg:` | Desktop and up |
+| ≥ 1280px | `xl:` | Wide desktop |
+
+**Mobile-first rule:** the narrowest detected viewport becomes the base classes (no prefix). Wider breakpoints use prefixed overrides for values that differ from the base.
+
+For each component with detected responsive variants:
+1. Identify the narrowest variant → base tokens (already in `tokens`).
+2. For each wider variant, compute the delta: only token values that differ from the base.
+3. Write `"responsiveTokens": { "lg": { "paddingLeft": 22, "fontSize": 16 } }` — only include breakpoints with at least one delta value.
+
+If no responsive variants are detected, write `"responsiveTokens": {}`.
+
+Add `"responsiveTokens": {}` to the manifest entry template.
+
 **After extraction:**
 Write all component manifest entries into `manifest.atoms`, `manifest.molecules`, `manifest.organisms` in the state file with `layer: null` and `semanticType: "default"` (these are assigned during CLASSIFY). Write all page entries into `manifest.pages[]`. Advance `phase` to `CLASSIFY`.
 
