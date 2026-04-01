@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>figma-to-storybook — Claude Code Skill Suite</title>
+  <style>
+    :root {
+      --bg: #0f0f11;
+      --surface: #18181b;
+      --surface2: #222228;
+      --border: #2e2e38;
+      --accent: #7c6af7;
+      --accent2: #e879f9;
+      --green: #34d399;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --text: #e4e4f0;
+      --muted: #8b8ba8;
+      --code-bg: #141418;
+      --radius: 12px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --mono: 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #0f0f11 0%, #16101f 50%, #0f0f11 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 24px 72px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(124,106,247,.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(124,106,247,.15);
+      border: 1px solid rgba(124,106,247,.35);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 13px;
+      color: #a89ef8;
+      margin-bottom: 28px;
+      letter-spacing: .02em;
+    }
+    .hero-badge span { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; }
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+    h1 .grad {
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 36px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #6b5de8; transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+    section { padding: 72px 0; border-bottom: 1px solid var(--border); }
+    section:last-child { border-bottom: none; }
+
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-bottom: 8px;
+    }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .section-desc {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 40px;
+      max-width: 600px;
+    }
+
+    /* ── INSTALL BOX ── */
+    .install-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .install-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    .install-tab {
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      border-bottom: 2px solid transparent;
+      transition: all .15s;
+    }
+    .install-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .install-tab:hover:not(.active) { color: var(--text); }
+    .install-pane { display: none; padding: 20px 24px; }
+    .install-pane.active { display: block; }
+    .install-pane code {
+      font-family: var(--mono);
+      font-size: 14px;
+      color: #c4b5fd;
+      white-space: pre;
+      display: block;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+    .pipeline::before {
+      content: '';
+      position: absolute;
+      left: 23px;
+      top: 32px;
+      bottom: 32px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--accent), var(--accent2));
+      opacity: .3;
+    }
+    .pipeline-step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      padding: 20px 0;
+    }
+    .step-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      position: relative;
+      z-index: 1;
+    }
+    .step-body h3 { margin-bottom: 4px; }
+    .step-body p { color: var(--muted); font-size: .95rem; }
+    .step-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-family: var(--mono);
+      background: rgba(124,106,247,.12);
+      border: 1px solid rgba(124,106,247,.25);
+      color: #a89ef8;
+      border-radius: 4px;
+      padding: 2px 7px;
+      margin-bottom: 6px;
+    }
+
+    /* ── SKILLS GRID ── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .skill-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: border-color .15s, transform .15s;
+    }
+    .skill-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .skill-card .skill-name {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: #a89ef8;
+      background: rgba(124,106,247,.12);
+      border-radius: 5px;
+      padding: 3px 9px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .skill-card p { font-size: .9rem; color: var(--muted); }
+
+    /* ── DOES / DOESN'T ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+    .check-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .check-list li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: .95rem;
+      color: var(--muted);
+    }
+    .check-list li::before {
+      content: attr(data-icon);
+      flex-shrink: 0;
+      margin-top: 2px;
+      font-size: 15px;
+    }
+    .check-list li span { color: var(--text); }
+    .list-header {
+      font-size: .85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .list-header.yes { color: var(--green); }
+    .list-header.no { color: var(--red); }
+
+    /* ── USAGE ── */
+    .steps-list { display: flex; flex-direction: column; gap: 20px; }
+    .usage-step {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .usage-step h3 { font-size: 1rem; margin-bottom: 4px; }
+    .usage-step p { font-size: .9rem; color: var(--muted); }
+    code.inline {
+      font-family: var(--mono);
+      font-size: .88em;
+      background: rgba(124,106,247,.12);
+      border: 1px solid rgba(124,106,247,.2);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: #c4b5fd;
+    }
+
+    /* ── OUTPUT TREE ── */
+    .file-tree {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      font-family: var(--mono);
+      font-size: 13.5px;
+      line-height: 1.9;
+    }
+    .file-tree .dir { color: #93c5fd; }
+    .file-tree .file { color: var(--text); }
+    .file-tree .comment { color: var(--muted); margin-left: 8px; font-size: 12px; }
+    .file-tree .new { color: var(--green); }
+
+    /* ── LIMITS ── */
+    .limit-grid { display: flex; flex-direction: column; gap: 12px; }
+    .limit-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--yellow);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+    }
+    .limit-card h3 { font-size: .95rem; color: var(--yellow); margin-bottom: 4px; }
+    .limit-card p { font-size: .9rem; color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--muted);
+      font-size: .875rem;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge"><span></span> Claude Code Skill Suite</div>
+  <h1>Figma <span class="grad">→ Storybook</span><br>with maximum fidelity.</h1>
+  <p class="hero-sub">7 specialized AI skills that migrate any Figma design file into a fully documented React + Tailwind component library — automatically.</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="https://github.com/borjadm18/figmabook" target="_blank">
+      View on GitHub
+    </a>
+    <a class="btn btn-ghost" href="#install">Get started →</a>
+  </div>
+</div>
+
+<!-- WHAT IT DOES -->
+<section id="what">
+  <div class="container">
+    <div class="section-label">What it does</div>
+    <h2>One command. A complete component library.</h2>
+    <p class="section-desc">Run <code class="inline">/figma-to-storybook</code> in any project. The skill suite handles the rest.</p>
+
+    <div class="two-col">
+      <div>
+        <div class="list-header yes">✓ Does</div>
+        <ul class="check-list">
+          <li data-icon="🎨"><span>Extracts every component, token, and page frame from your Figma file</span></li>
+          <li data-icon="⚛️"><span>Generates React + TypeScript + Tailwind CSS components</span></li>
+          <li data-icon="📚"><span>Creates Storybook stories with live Figma design links</span></li>
+          <li data-icon="🧪"><span>Writes Vitest tests for every component and variant</span></li>
+          <li data-icon="🎣"><span>Generates custom hooks from Figma prototype interactions</span></li>
+          <li data-icon="📄"><span>Composes full-page Storybook stories (desktop, tablet, mobile)</span></li>
+          <li data-icon="🔍"><span>Verifies fidelity and auto-fixes common issues</span></li>
+          <li data-icon="📊"><span>Produces a migration report with fidelity scores per component</span></li>
+          <li data-icon="🔁"><span>Resumable — picks up exactly where it left off</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="list-header no">✗ Doesn't</div>
+        <ul class="check-list">
+          <li data-icon="🚫"><span>Generate business logic (API calls, validation, side effects)</span></li>
+          <li data-icon="🚫"><span>Set up routing or page navigation</span></li>
+          <li data-icon="🚫"><span>Translate Figma Smart Animate transitions to CSS animations</span></li>
+          <li data-icon="🚫"><span>Implement drag interactions (scaffolds them with TODOs)</span></li>
+          <li data-icon="🚫"><span>Generate backend code</span></li>
+          <li data-icon="🚫"><span>Replace design decisions — it mirrors what's in Figma</span></li>
+          <li data-icon="🚫"><span>Support css-modules or styled-components (Tailwind only)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section id="install">
+  <div class="container">
+    <div class="section-label">Installation</div>
+    <h2>Install in 30 seconds.</h2>
+    <p class="section-desc">The scripts copy all 7 skill files to your Claude Code skills directory.</p>
+
+    <div class="install-block">
+      <div class="install-tabs">
+        <button class="install-tab active" onclick="showTab('mac')">Mac / Linux</button>
+        <button class="install-tab" onclick="showTab('win')">Windows (PowerShell)</button>
+      </div>
+      <div class="install-pane active" id="pane-mac">
+        <code>curl -fsSL https://raw.githubusercontent.com/borjadm18/figmabook/main/install.sh | bash</code>
+      </div>
+      <div class="install-pane" id="pane-win">
+        <code>irm https://raw.githubusercontent.com/borjadm18/figmabook/main/install.ps1 | iex</code>
+      </div>
+    </div>
+
+    <p style="margin-top:16px; font-size:.875rem; color:var(--muted);">
+      Requires <a href="https://claude.ai/code" style="color:var(--accent);">Claude Code</a> and Node.js 18+.
+    </p>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="container">
+    <div class="section-label">How it works</div>
+    <h2>7 skills. One pipeline.</h2>
+    <p class="section-desc">Each skill has a single responsibility. They share state via a local JSON file and run in sequence.</p>
+
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="step-icon">🔐</div>
+        <div class="step-body">
+          <div class="step-tag">figma-extract</div>
+          <h3>Extract &amp; Classify</h3>
+          <p>Authenticates with Figma (MCP OAuth or Personal Access Token), extracts all components, tokens, and page frames. Classifies them into atoms, molecules, and organisms. You confirm the classification before anything is generated.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-icon">🎨</div>
+        <div class="step-body">
+          <div class="step-tag">figma-tokens</div>
+          <h3>Design Tokens</h3>
+          <p>Converts Figma variables (colors, spacing, typography, shadows) into a <code class="inline">tailwind.config.ts</code> theme extension and a <code class="inline">src/tokens/index.ts</code> file of named JS constants. Also creates the <code class="inline">cn()</code> utility.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-icon">⚛️</div>
+        <div class="step-body">
+          <div class="step-tag">figma-component</div>
+          <h3>Component Generation</h3>
+          <p>Generates TSX components with Tailwind classes translated directly from Figma manifest values. Every CSS property traces to a manifest field — or is marked <code class="inline">NOT IN FIGMA</code>. Runs three times: atoms → molecules → organisms.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-icon">🔍</div>
+        <div class="step-body">
+          <div class="step-tag">figma-verify</div>
+          <h3>Fidelity Verification</h3>
+          <p>Checks every generated Tailwind class against the manifest. Auto-fixes simple issues (wrong color, missing gap). Escalates complex issues (blend modes, layout changes) to you. Blocks advancement until all critical issues are resolved. Target: ≥98% fidelity.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-icon">🎣</div>
+        <div class="step-body">
+          <div class="step-tag">figma-behaviour</div>
+          <h3>Interaction Hooks</h3>
+          <p>Reads Figma prototype connections (click triggers, timeouts, hover swaps) and generates custom React hooks. ON_CLICK → OVERLAY becomes a <code class="inline">useModal</code> hook. AFTER_TIMEOUT becomes <code class="inline">useAutoAdvance</code>. Adds interaction stories and unit tests.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-icon">📄</div>
+        <div class="step-body">
+          <div class="step-tag">figma-pages</div>
+          <h3>Page Composition</h3>
+          <p>Takes top-level Figma page frames and assembles organisms into Storybook Page stories. Respects Y-order from Figma, applies real content values, and generates Desktop / Tablet / Mobile viewport stories.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-icon">📊</div>
+        <div class="step-body">
+          <div class="step-tag">figma-to-storybook</div>
+          <h3>Orchestrator + Report</h3>
+          <p>Sequences all skills, manages the shared state file, handles errors with retry/skip/abort, and generates the final migration report with fidelity scores. Also runs a learning system that captures recurring fixes and proposes new rules across projects.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OUTPUT -->
+<section id="output">
+  <div class="container">
+    <div class="section-label">Output</div>
+    <h2>What gets generated.</h2>
+    <p class="section-desc">A fully structured project ready to run in Storybook.</p>
+
+    <div class="file-tree">
+      <div><span class="dir">src/</span></div>
+      <div>&nbsp;&nbsp;<span class="dir">components/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">atoms/</span> &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">Button, Input, Tag, Link</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="new">Button.tsx</span><span class="comment">— component with Tailwind classes from Figma</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="new">Button.stories.tsx</span><span class="comment">— one story per variant + Figma design link</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="new">Button.test.tsx</span><span class="comment">— render tests for all variants</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="new">useButton.ts</span><span class="comment">— hook (if Figma has prototype interactions)</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">molecules/</span> &nbsp;&nbsp;<span class="comment">Card, Accordion, Tabs, Dropdown, Stepper</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">organisms/</span> &nbsp;&nbsp;<span class="comment">HeroBanner, Modal, Footer, CTA, Testimonials</span></div>
+      <div>&nbsp;&nbsp;<span class="dir">pages/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="new">LandingPage.stories.tsx</span><span class="comment">— Desktop / Tablet / Mobile</span></div>
+      <div>&nbsp;&nbsp;<span class="dir">tokens/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="new">index.ts</span><span class="comment">— COLOR_PRIMARY, SPACING_MD, etc.</span></div>
+      <div>&nbsp;&nbsp;<span class="dir">lib/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="new">utils.ts</span><span class="comment">— cn() helper (clsx + tailwind-merge)</span></div>
+      <div><span class="new">tailwind.config.ts</span><span class="comment">— design tokens as theme extensions</span></div>
+      <div><span class="dir">docs/</span></div>
+      <div>&nbsp;&nbsp;<span class="new">migration-report.md</span><span class="comment">— fidelity scores, issues resolved, component index</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO USE -->
+<section id="usage">
+  <div class="container">
+    <div class="section-label">Usage</div>
+    <h2>How to run a migration.</h2>
+    <p class="section-desc">Open Claude Code in any project directory and follow the prompts.</p>
+
+    <div class="steps-list">
+      <div class="usage-step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Install the skills</h3>
+          <p>Run the install script once. All 7 skills are copied to <code class="inline">~/.claude/skills/</code> and available globally.</p>
+        </div>
+      </div>
+      <div class="usage-step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Open Claude Code in your project</h3>
+          <p>Navigate to the directory where you want to generate the component library. Can be an empty directory or an existing project.</p>
+        </div>
+      </div>
+      <div class="usage-step">
+        <div class="step-num">3</div>
+        <div>
+          <h3>Run <code class="inline">/figma-to-storybook</code></h3>
+          <p>The orchestrator starts. It asks for your Figma file URL (or file ID), your preferred language (TypeScript recommended), and test framework (Vitest recommended).</p>
+        </div>
+      </div>
+      <div class="usage-step">
+        <div class="step-num">4</div>
+        <div>
+          <h3>Confirm the classification</h3>
+          <p>Claude shows you a table of all detected components — which are atoms, molecules, organisms — and the detected page frames. You approve or adjust before any files are generated.</p>
+        </div>
+      </div>
+      <div class="usage-step">
+        <div class="step-num">5</div>
+        <div>
+          <h3>Review fidelity checks</h3>
+          <p>After each layer, Claude runs a fidelity check. Simple issues are auto-fixed. Complex issues (blend modes, layout changes) are shown to you with a description of what needs manual attention.</p>
+        </div>
+      </div>
+      <div class="usage-step">
+        <div class="step-num">6</div>
+        <div>
+          <h3>Resume anytime</h3>
+          <p>If the session stops, just run <code class="inline">/figma-to-storybook</code> again in the same directory. It reads <code class="inline">.figma-migration.json</code> and continues from exactly where it left off.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIMITATIONS -->
+<section id="limits">
+  <div class="container">
+    <div class="section-label">Limitations</div>
+    <h2>What to expect from the hooks skill.</h2>
+    <p class="section-desc">The behaviour skill generates ~70% of each hook. Some things Figma can't communicate.</p>
+
+    <div class="limit-grid">
+      <div class="limit-card">
+        <h3>Business logic</h3>
+        <p>Hooks have the correct structure (useState, useCallback, open/close/toggle) but API calls, form validation, and side effects always need manual completion. Every generated hook includes a <code class="inline">// TODO (figma-behaviour):</code> comment where logic is needed.</p>
+      </div>
+      <div class="limit-card">
+        <h3>Smart Animate transitions</h3>
+        <p>Figma's Smart Animate information (duration, easing, animated properties) is captured as a comment in the code but no CSS animation or Framer Motion code is generated.</p>
+      </div>
+      <div class="limit-card">
+        <h3>Cross-page navigation</h3>
+        <p>When a Figma prototype links to a different page frame, the skill inserts a <code class="inline">// TODO: router.push('{pageName}')</code> comment. No router integration is set up automatically.</p>
+      </div>
+      <div class="limit-card">
+        <h3>Drag interactions</h3>
+        <p>Drag interactions get a scaffolded hook with empty <code class="inline">onDragStart</code>, <code class="inline">onDrag</code>, and <code class="inline">onDragEnd</code> handlers. The implementation is manual.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>
+    <a href="https://github.com/borjadm18/figmabook" target="_blank">github.com/borjadm18/figmabook</a>
+    &nbsp;·&nbsp;
+    Built with <a href="https://claude.ai/code" target="_blank">Claude Code</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/borjadm18/figmabook/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a>
+  </p>
+</footer>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.install-pane').forEach(p => p.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('pane-' + id).classList.add('active');
+  }
+</script>
+</body>
+</html>
