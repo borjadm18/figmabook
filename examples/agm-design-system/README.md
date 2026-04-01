@@ -1,8 +1,7 @@
-# AGM Design System — Example Migration
+# Example Design System — Migration Sample
 
-A real migration of the AGM Design System from Figma to Storybook, produced using the figma-to-storybook skill suite.
+A sample migration produced using the figma-to-storybook skill suite. Component names and design details have been anonymised.
 
-**Figma file ID:** r42MHxXYkMWRiuaVs6PoHu
 **Components migrated:** 14 (4 atoms, 5 molecules, 5 organisms)
 **Stack:** React 19 + TypeScript + Tailwind CSS 4 + Storybook 10 + Vitest
 

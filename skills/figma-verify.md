@@ -41,7 +41,8 @@ For each component in the completed layer:
    - Pattern #7: verify HTML element choices against the nesting table.
    - Pattern #8: if any `.map()` returns multiple siblings, verify `React.Fragment key` is used.
    - Pattern #9: if `semanticType === "overlay"`, verify both `useEffect` blocks and `previousFocus.current?.focus()` are present.
-6. Compute fidelity score. Report.
+6. Variant story coverage: verify that every entry in `manifest.{component}.variants[]` has a corresponding exported story in `{ComponentName}.stories.tsx`. A missing story for any variant is **Critical**.
+7. Compute fidelity score. Report.
 
 ### Tailwind class search table
 
@@ -64,6 +65,8 @@ For each component in the completed layer:
 | `effects[DROP_SHADOW]` not in config | `shadow-[...]` |
 | `opacity != 1` | `opacity-[{N}]` |
 | `blendMode != NORMAL` | `mix-blend-{mode}` on element + `isolate` on parent |
+| `strokes[N].hex` (any stroke defined) | `border` + `border-[#{hex}]` or `border-{token}` |
+| `strokes[N].weight > 0` (non-default) | `border-2` or `border-[{N}px]` |
 | `textCase: SMALL_CAPS_FORCED` | `[font-variant-caps:small-caps]` |
 | `textCase: UPPER` | `uppercase` |
 | `textCase: LOWER` | `lowercase` |
@@ -147,6 +150,7 @@ pages_fidelity% = (organisms correctly imported and rendered) / (total expected 
 - Wrong font-weight class (font-bold, font-semibold, font-normal, font-light)
 - Missing `opacity-[{N}]` when manifest opacity != 1
 - Missing shadow class for DROP_SHADOW effect
+- Missing border class for `strokes[N]` (wrong or absent `border`, `border-{color}`, `border-[{N}px]`)
 
 **Always escalate to developer (never auto-fix):**
 - `mix-blend-{mode}` + `isolate` — requires parent/child JSX restructuring

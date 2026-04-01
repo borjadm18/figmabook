@@ -59,7 +59,7 @@ docs/
 
 ## Example
 
-See [`examples/agm-design-system/`](examples/agm-design-system/) for a real migration.
+See [`examples/`](examples/) for a sample migration.
 
 ## Contributing
 

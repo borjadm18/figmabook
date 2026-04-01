@@ -36,6 +36,9 @@ If a value IS shared (≥ tokenThreshold) but has no Figma variable name: genera
 
 Write to `tailwind.config.ts` in the working directory. If the file already exists, merge into `theme.extend` only — do not overwrite other config keys.
 
+**Deep merge rule:** for each token category (`colors`, `spacing`, `fontSize`, etc.), append new keys. If a key already exists in the project config, keep the existing value and log a 🟡 Important notice:
+> `Token conflict: tailwind.config.ts already defines {key} as {existingValue}. Figma value is {figmaValue}. Keeping existing value — update manually if needed.`
+
 ```ts
 import type { Config } from 'tailwindcss';
 

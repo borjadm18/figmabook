@@ -1,5 +1,8 @@
 $SkillsDir = "$env:USERPROFILE\.claude\skills"
-$RepoRaw   = "https://raw.githubusercontent.com/borjadm18/figmabook/main/skills"
+# Pin to a release tag (e.g. "v1.0.0") for stability, or keep "main" for the latest.
+# Breaking changes in main deploy immediately to all installs.
+$Version  = if ($env:FIGMABOOK_VERSION) { $env:FIGMABOOK_VERSION } else { "main" }
+$RepoRaw  = "https://raw.githubusercontent.com/borjadm18/figmabook/$Version/skills"
 
 $Skills = @(
   "figma-to-storybook",

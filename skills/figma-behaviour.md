@@ -3,7 +3,7 @@
 Reads Figma prototype connections and generates custom React hooks. Updates existing component files with hook usage, adds interaction stories, and adds hook unit tests.
 
 **Trigger:** Invoked by figma-to-storybook orchestrator when phase=BEHAVIOUR.
-**Input:** `.figma-migration.json` with `progress.organisms.done[]` fully populated (all components generated).
+**Input:** `.figma-migration.json` with `progress.atoms.done[]`, `progress.molecules.done[]`, and `progress.organisms.done[]` all fully populated (all components generated across all layers).
 **Output:** `use{ComponentName}.ts` hooks, updated `{ComponentName}.tsx` imports, updated stories, updated tests.
 
 ---
@@ -181,21 +181,44 @@ export function use{ComponentName}Drag() {
 
 ## TSX component updates
 
-### For isOpen / activeIndex patterns: add import + hook call
+### For isOpen / activeIndex patterns: add import + hook call + update JSX
 
 ```tsx
-// Add at top of file:
+// 1. Add at top of file:
 import { use{ComponentName} } from './use{ComponentName}';
 
-// Add inside component function, before return:
+// 2. Add inside component function, before return:
 const { isOpen, open, close } = use{ComponentName}();
 
-// Update trigger element:
+// 3. Update the trigger element to call open():
 <button type="button" onClick={open} ...>
 
-// Pass state to overlay component:
-<{DestinationComponent} isOpen={isOpen} onClose={close} />
+// 4. Wrap the component return in a Fragment and append the overlay.
+// The overlay must be rendered at the same level as the trigger, not inside it.
+
+// BEFORE (original TSX from figma-component):
+return (
+  <section className={cn(...)}>
+    <button type="button" ...>Open</button>
+    {/* other content */}
+  </section>
+);
+
+// AFTER (updated):
+return (
+  <>
+    <section className={cn(...)}>
+      <button type="button" onClick={open} ...>Open</button>
+      {/* other content */}
+    </section>
+    {isOpen && (
+      <{DestinationComponent} isOpen={isOpen} onClose={close} />
+    )}
+  </>
+);
 ```
+
+If the component is already a Fragment at the root, append the overlay as the last sibling instead of adding a new Fragment wrapper.
 
 ### For cross-page navigation (ON_CLICK + NAVIGATE to page frame):
 

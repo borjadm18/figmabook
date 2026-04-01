@@ -34,7 +34,7 @@ Add `mcp_mode` boolean to the state file `config` object.
 
 **Injection layer (before writing state file):**
 
-Read both learning files (treat absent or malformed as `{ "entries": [] }` — see LEARNING SYSTEM: Storage for malformed/version-mismatch handling):
+Read both learning files (if a file is absent, has invalid JSON, or contains an unrecognised version field, treat it as `{ "entries": [] }` and continue silently):
 1. Read `~/.claude/figma-to-storybook-learnings.json` (global).
 2. Read `.figma-learnings.json` (project).
 3. Merge into `activeRules` in memory — project entries override global on `signal` conflict. This is intentional for the `"verify:"` namespace: a project `verify_auto_fix` rule supersedes a global `verify_escalation` rule for the same checkId. `"classify:"` and `"figma:"` signals cannot collide cross-type.
@@ -169,7 +169,8 @@ X-Figma-Token: {token from INIT}
     "primaryAxisAlignItems": "CENTER",
     "effects": [{ "type": "DROP_SHADOW", "offsetX": 0, "offsetY": 0, "blur": 4, "spread": 0, "color": "rgba(0,0,0,0.25)" }],
     "opacity": 1
-  }
+  },
+  "interactions": []
 }
 ```
 
@@ -181,6 +182,8 @@ X-Figma-Token: {token from INIT}
 - `textAlignHorizontal`: read from `style.textAlignHorizontal` on the text node child.
 - Colors: always use `fills[N].color` from the API response converted to hex. **Never** copy hex values from the Figma visual inspector (it rounds).
 - `effects[N].spread`: read from `effects[N].radius` in Figma API (the `spread` field in the manifest corresponds to `radius` in the API response).
+- `layoutGrow`: read from `node.layoutGrow` on the component node. Defaults to `0` if the field is absent. A value of `1` means the component stretches to fill available space in its autolayout parent.
+- `interactions[]`: read from `node.interactions` on each `COMPONENT` or `COMPONENT_SET` node. Each entry has the shape `{ "trigger": { "type": "ON_CLICK" | "ON_HOVER" | "AFTER_TIMEOUT" | "ON_DRAG" }, "action": { "type": "OVERLAY" | "NAVIGATE" | "SWAP" | "SCROLL_TO", "destinationId": "...", "duration": 300 } }`. Write `"interactions": []` if the node has no interactions. This field is consumed by figma-behaviour.
 
 ### Page frame extraction (all modes)
 
@@ -289,7 +292,17 @@ Update every manifest entry's `layer` and `semanticType` with the confirmed valu
 
 **Step 6 — Capture classification overrides:**
 For each component where the developer changed `layer` or `semanticType` from the auto-classified value:
-- Append one event per changed field to `learnings[]` in the state file.
-- Use `(type, signal)` schema from LEARNING SYSTEM: Event Types.
-- Example for semanticType override on "Card": `{ "type": "classification_override", "signal": "classify:Card:semanticType", "label": "Card semanticType correction", "before": "default", "after": "card", "phase": "CLASSIFY", "componentName": "Card", ... }`
+- Append one event per changed field to `learnings[]` in the state file using this schema:
+  ```json
+  {
+    "type": "classification_override",
+    "signal": "classify:{ComponentName}:{field}",
+    "label": "{description of the correction}",
+    "before": "{original auto-classified value}",
+    "after": "{developer-corrected value}",
+    "phase": "CLASSIFY",
+    "componentName": "{ComponentName}"
+  }
+  ```
+- Example for semanticType override on "Card": `{ "type": "classification_override", "signal": "classify:Card:semanticType", "label": "Card semanticType correction", "before": "default", "after": "card", "phase": "CLASSIFY", "componentName": "Card" }`
 - If no overrides were made: append nothing.

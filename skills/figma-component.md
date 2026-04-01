@@ -18,40 +18,21 @@ For each component in `progress.{layer}.pending[]`:
 
 ---
 
-## Fidelity Engine — Translation Table
-
-Apply every applicable row from this table. Rows are not optional.
-
-| Manifest field | CSS / JSX output | Error pattern |
-|---|---|---|
-| `textCase: ORIGINAL` | no CSS emitted; field is `n/a` | #1 |
-| `textCase: SMALL_CAPS_FORCED` | `font-variant-caps: small-caps` | #1 |
-| `textCase: UPPER` | `text-transform: uppercase` | #1 |
-| `textCase: LOWER` | `text-transform: lowercase` | #1 |
-| `textCase: TITLE` | `text-transform: capitalize` | #1 |
-| `textAlignHorizontal: LEFT` | no CSS emitted; field is `n/a` (browser default) | #3 |
-| `textAlignHorizontal: CENTER` | `text-align: center` | #3 |
-| `textAlignHorizontal: RIGHT` | `text-align: right` | #3 |
-| `textAlignHorizontal: JUSTIFIED` | `text-align: justify` | #3 |
-| `fills[N].blendMode ≠ NORMAL` | `mix-blend-mode: {blendMode}` on element + `isolation: isolate` on parent | #2 |
-| `isAutoLayout: true` + `itemSpacing` | `gap: {itemSpacing}px` | #4 |
-| `isAutoLayout: false` | Calculate gap: `xChild2 - xChild1 - widthChild1`. Do not use `itemSpacing`. | #4 |
-| `paddingTop / Right / Bottom / Left` | `padding: {top}px {right}px {bottom}px {left}px` | #4 |
-| `effects[N].type: DROP_SHADOW` | `box-shadow: {offsetX}px {offsetY}px {blur}px {spread}px {color}` (use `0` not `0px` for zero values) | #6 |
-| `layoutGrow: 1` on a child node | `flex: 1` on that child element | #5 |
-| `fills[N].hex` | exact hex color from API — **never** copy from Figma inspector | #10 |
-| `opacity` (layer level, ≠ 1) | `opacity: {opacity}` | #6 |
-
 ### Non-Figma Value Rule
 
-Any CSS value in a generated file that does NOT correspond to a manifest field **MUST** have this comment:
+Any Tailwind class in a generated file that does NOT correspond to a manifest field **MUST** be annotated with a JSX comment immediately before the element:
 
-```css
-/* ✦ NOT IN FIGMA — {reason, e.g. "added for WCAG 2.1 keyboard focus (2.4.7)"} */
-.selector { property: value; }
+```tsx
+{/* ✦ NOT IN FIGMA — {reason, e.g. "added for WCAG 2.1 keyboard focus (2.4.7)"} */}
+<element
+  className={cn(
+    'existing-figma-classes',
+    'focus-visible:outline-2 focus-visible:outline-offset-2', // non-figma addition
+  )}
+/>
 ```
 
-Values without this comment and without a manifest source are fidelity errors. The Verification Engine flags them as 🟡 Important.
+Classes without this annotation and without a manifest source are fidelity errors. The Verification Engine flags them as 🟡 Important.
 
 ### Per-variant generation
 
@@ -224,6 +205,12 @@ Map each manifest field to a Tailwind class using these rules (REQUIRED — ever
 | `layoutGrow: 1` on child node | `flex-1` on that child element | |
 | `isAutoLayout: true` with `counterAxisAlignItems: CENTER` | `items-center` | |
 | `isAutoLayout: true` with `primaryAxisAlignItems: CENTER` | `justify-center` | |
+| `strokes[N].hex` matching `tailwind.config.ts` color | `border border-{token}` | Apply to root element |
+| `strokes[N].hex` NOT in config | `border border-[#{hex}]` | Arbitrary color |
+| `strokes[N].weight: 1` | `border` (Tailwind default 1px) | Combined with color class |
+| `strokes[N].weight: 2` | `border-2` | |
+| `strokes[N].weight` other value | `border-[{N}px]` | Arbitrary width |
+| `strokes[N].align: INSIDE` | `box-border` | Border-box sizing |
 
 Add a `{/* Figma: {field}={value} */}` comment above each group of arbitrary-value classes.
 

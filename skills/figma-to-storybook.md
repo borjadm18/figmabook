@@ -58,7 +58,7 @@ Install dependencies:
 ```bash
 npm install react react-dom clsx tailwind-merge
 npm install -D vite @vitejs/plugin-react tailwindcss @tailwindcss/vite
-npm install -D storybook @storybook/react-vite @storybook/addon-docs @storybook/addon-a11y
+npm install -D storybook @storybook/react-vite @storybook/addon-docs @storybook/addon-a11y @storybook/addon-viewport
 npm install -D @storybook/addon-designs @chromatic-com/storybook
 npm install -D vitest @vitest/ui jsdom @testing-library/react @testing-library/user-event @testing-library/jest-dom
 ```
@@ -102,10 +102,14 @@ export default config;
 **.storybook/preview.ts:**
 ```ts
 import type { Preview } from '@storybook/react';
+import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport';
 
 const preview: Preview = {
   parameters: {
     layout: 'centered',
+    viewport: {
+      viewports: INITIAL_VIEWPORTS,
+    },
   },
 };
 export default preview;
