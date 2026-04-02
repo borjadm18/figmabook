@@ -40,6 +40,7 @@ BEHAVIOUR                  ->  invoke figma-behaviour
 VERIFY_BEHAVIOUR           ->  invoke figma-verify [layer=behaviour]
 PAGES                      ->  invoke figma-pages
 VERIFY_PAGES               ->  invoke figma-verify [layer=pages]
+COMMENTS                   ->  invoke figma-comments
 DONE                       ->  run DONE inline (see below)
 ERROR                      ->  present error and options (see ERROR handling)
 ```
@@ -210,6 +211,7 @@ Retry policy:
 - figma-behaviour: skip components already in `behaviours.done[]`
 - figma-pages: skip pages already in `pages.done[]`
 - figma-verify: re-read generated files and re-run checklist
+- figma-comments: re-fetch comments and re-process (idempotent — JSDoc blocks are replaced, not appended)
 
 ---
 

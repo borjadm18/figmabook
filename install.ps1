@@ -11,7 +11,8 @@ $Skills = @(
   "figma-component",
   "figma-behaviour",
   "figma-pages",
-  "figma-verify"
+  "figma-verify",
+  "figma-comments"
 )
 
 Write-Host "Installing figma-to-storybook skills to $SkillsDir..."

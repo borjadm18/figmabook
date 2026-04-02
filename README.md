@@ -14,6 +14,7 @@ Built as a suite of [Claude Code](https://claude.ai/code) skills.
 - Composes full-page Storybook stories from your Figma page frames
 - Verifies fidelity and auto-fixes common issues
 - Produces a migration report with fidelity scores
+- Extracts Figma comment threads and embeds design decisions as JSDoc in each component
 
 ## Requirements
 

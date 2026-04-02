@@ -15,6 +15,7 @@ SKILLS=(
   figma-behaviour
   figma-pages
   figma-verify
+  figma-comments
 )
 
 echo "Installing figma-to-storybook skills to $SKILLS_DIR..."
